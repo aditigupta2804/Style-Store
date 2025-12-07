@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop | StyleStore India</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Cart Specific Styles */
+        .cart-bar { background: #eee; padding: 10px 2rem; display: flex; justify-content: flex-end; align-items: center; }
+        .cart-modal { position: fixed; top: 0; right: 0; width: 350px; height: 100%; background: white; box-shadow: -2px 0 5px rgba(0,0,0,0.2); transform: translateX(100%); transition: 0.3s; padding: 20px; z-index: 100; overflow-y: auto;}
+        .cart-modal.active { transform: translateX(0); }
+        .close-cart { background: none; border: none; font-size: 1.5rem; float: right; cursor: pointer; }
+        
+        .cart-item { 
+            border-bottom: 1px solid #ddd; 
+            padding: 15px 0; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+        }
+        
+        .cart-item img { width: 50px; height: 50px; object-fit: cover; border-radius: 4px; margin-right: 10px; }
+        .cart-item-details { flex-grow: 1; }
+        .cart-item h4 { font-size: 0.9rem; margin-bottom: 5px; }
+        
+        .remove-btn { color: red; cursor: pointer; font-size: 0.8rem; background: none; border: none; }
+        
+        .checkout-btn { width: 100%; background: #27ae60; color: white; border: none; padding: 12px; margin-top: 20px; cursor: pointer; font-size: 1rem; border-radius: 4px; }
+        .checkout-btn:hover { background: #219150; }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="index.html" class="logo">StyleStore</a>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="login.html" class="btn">Login</a>
+            <button onclick="toggleCart()" style="background:none; border:none; font-size:1.2rem; cursor:pointer; margin-left:15px; position: relative;">
+                🛒 <span id="cartCount" style="background: #ff6b6b; color: white; font-size: 0.7rem; padding: 2px 6px; border-radius: 50%; position: absolute; top: -5px; right: -10px;">0</span>
+            </button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h2 style="margin-bottom: 20px; border-bottom: 2px solid #ff6b6b; display: inline-block;">Latest Collection</h2>
+        <div class="product-grid" id="productGrid"></div>
+    </div>
+
+    <!-- Cart Sidebar -->
+    <div class="cart-modal" id="cartModal">
+        <button class="close-cart" onclick="toggleCart()">×</button>
+        <h3>Your Cart</h3>
+        <div id="cartItems" style="margin-top: 20px;">
+            <p style="text-align:center; color:#888;">Your cart is empty</p>
+        </div>
+        
+        <div style="margin-top: 30px; border-top: 2px solid #eee; padding-top: 20px;">
+            <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 1.1rem;">
+                <span>Total:</span>
+                <span id="cartTotal">₹0</span>
+            </div>
+            <button class="checkout-btn" onclick="alert('Proceeding to Payment Gateway...')">Checkout Now</button>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 StyleStore India. All prices in INR.</p>
+    </footer>
+
+    <script>
+        // 20 Products with Real Images and INR Prices
+        const products = [
+            // Electronics
+            { id: 1, name: "Sony Wireless Headphones", price: 14999, category: "Electronics", image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=500&q=60" },
+            { id: 2, name: "Apple Watch Series 7", price: 41900, category: "Electronics", image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=500&q=60" },
+            { id: 3, name: "Canon DSLR Camera", price: 55999, category: "Electronics", image: "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?auto=format&fit=crop&w=500&q=60" },
+            { id: 4, name: "Mechanical Keyboard", price: 4500, category: "Electronics", image: "https://images.unsplash.com/photo-1587829741301-dc798b91a603?auto=format&fit=crop&w=500&q=60" },
+            { id: 5, name: "Gaming Mouse", price: 2999, category: "Electronics", image: "https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?auto=format&fit=crop&w=500&q=60" },
+            
+            // Fashion - Men
+            { id: 6, name: "Nike Running Shoes", price: 8495, category: "Fashion", image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=500&q=60" },
+            { id: 7, name: "Leather Jacket", price: 12500, category: "Fashion", image: "https://images.unsplash.com/photo-1551028919-ac66c5f8b6b9?auto=format&fit=crop&w=500&q=60" },
+            { id: 8, name: "Classic Denim Jeans", price: 3299, category: "Fashion", image: "https://images.unsplash.com/photo-1542272454315-4c01d7abdf4a?auto=format&fit=crop&w=500&q=60" },
+            { id: 9, name: "Ray-Ban Aviator", price: 8990, category: "Fashion", image: "https://images.unsplash.com/photo-1572635196237-14b3f281503f?auto=format&fit=crop&w=500&q=60" },
+            
+            // Fashion - Women & Accessories
+            { id: 10, name: "Designer Handbag", price: 25000, category: "Accessories", image: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=500&q=60" },
+            { id: 11, name: "Gold Plated Necklace", price: 4500, category: "Accessories", image: "https://images.unsplash.com/photo-1599643478518-17488fbbcd75?auto=format&fit=crop&w=500&q=60" },
+            { id: 12, name: "Summer Floral Dress", price: 2499, category: "Fashion", image: "https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?auto=format&fit=crop&w=500&q=60" },
+            
+            // Home & Living
+            { id: 13, name: "Modern Desk Lamp", price: 1899, category: "Home", image: "https://images.unsplash.com/photo-1507473888900-52e1adad8dbf?auto=format&fit=crop&w=500&q=60" },
+            { id: 14, name: "Ceramic Coffee Mug", price: 499, category: "Home", image: "https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?auto=format&fit=crop&w=500&q=60" },
+            { id: 15, name: "Succulent Plant Set", price: 999, category: "Home", image: "https://images.unsplash.com/photo-1485955900006-10f4d324d411?auto=format&fit=crop&w=500&q=60" },
+            
+            // Beauty
+            { id: 16, name: "Organic Face Serum", price: 1299, category: "Beauty", image: "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=500&q=60" },
+            { id: 17, name: "Luxury Perfume", price: 6500, category: "Beauty", image: "https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=500&q=60" },
+            { id: 18, name: "Makeup Brush Set", price: 1500, category: "Beauty", image: "https://images.unsplash.com/photo-1596462502278-27bfdd403348?auto=format&fit=crop&w=500&q=60" },
+            
+            // Sports
+            { id: 19, name: "Yoga Mat", price: 1200, category: "Sports", image: "https://images.unsplash.com/photo-1601925260368-ae2f83cf8b7f?auto=format&fit=crop&w=500&q=60" },
+            { id: 20, name: "Stainless Water Bottle", price: 850, category: "Sports", image: "https://images.unsplash.com/photo-1602143407151-011141920038?auto=format&fit=crop&w=500&q=60" }
+        ];
+
+        let cart = [];
+
+        // Helper to format currency
+        function formatRupee(amount) {
+            return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(amount);
+        }
+
+        function renderProducts() {
+            const grid = document.getElementById('productGrid');
+            grid.innerHTML = products.map(p => `
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="${p.image}" alt="${p.name}">
+                    </div>
+                    <div class="product-info">
+                        <p style="font-size: 0.8rem; color: #888; margin-bottom: 5px;">${p.category}</p>
+                        <h3>${p.name}</h3>
+                        <p style="color:#ff6b6b; font-weight:bold; font-size: 1.1rem;">${formatRupee(p.price)}</p>
+                        <button class="add-btn" onclick="addToCart(${p.id})">Add to Cart</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function addToCart(id) {
+            const product = products.find(p => p.id === id);
+            cart.push(product);
+            updateCart();
+            document.getElementById('cartModal').classList.add('active'); // Open cart automatically
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            updateCart();
+        }
+
+        function updateCart() {
+            document.getElementById('cartCount').innerText = cart.length;
+            const cartDiv = document.getElementById('cartItems');
+            const totalSpan = document.getElementById('cartTotal');
+            
+            if(cart.length === 0) {
+                cartDiv.innerHTML = '<p style="text-align:center; color:#888;">Your cart is empty</p>';
+                totalSpan.innerText = formatRupee(0);
+                return;
+            }
+
+            let total = 0;
+            cartDiv.innerHTML = cart.map((item, index) => {
+                total += item.price;
+                return `
+                    <div class="cart-item">
+                        <div style="display:flex; align-items:center;">
+                            <img src="${item.image}" alt="thumb">
+                            <div class="cart-item-details">
+                                <h4>${item.name}</h4>
+                                <span style="color:#666;">${formatRupee(item.price)}</span>
+                            </div>
+                        </div>
+                        <button class="remove-btn" onclick="removeFromCart(${index})">Remove</button>
+                    </div>
+                `;
+            }).join('');
+            
+            totalSpan.innerText = formatRupee(total);
+        }
+
+        function toggleCart() {
+            document.getElementById('cartModal').classList.toggle('active');
+        }
+
+        renderProducts();
+    </script>
+</body>
+</html>
