@@ -16,6 +16,13 @@ function App() {
   const [showCartModal, setShowCartModal] = useState(false);
   const [tempProduct, setTempProduct] = useState(null);
 
+  // [Q5] State to Hide/Show Feedback Section
+  const [showFeedback, setShowFeedback] = useState(true);
+
+  // [Q3] Feedback Form State
+  const [feedback, setFeedback] = useState({ email: '', mobile: '', message: '' });
+  const [submitMsg, setSubmitMsg] = useState('');
+
   const handleLogin = (email) => setView('home');
 
   const addToCart = (product) => {
@@ -63,6 +70,40 @@ function App() {
     setProducts(initialProducts.filter(p => p.title.toLowerCase().includes(text.toLowerCase())));
   };
 
+  // [Q3] & [Q4] & [Q7] Handle Feedback Submit
+  const handleFeedbackSubmit = () => {
+    // Regex for Email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    // Regex for 10 digit Mobile
+    const mobileRegex = /^[0-9]{10}$/;
+
+    if (!emailRegex.test(feedback.email)) {
+        alert("Invalid Email Address!");
+        return;
+    }
+    if (!mobileRegex.test(feedback.mobile)) {
+        alert("Invalid Mobile Number! Must be 10 digits.");
+        return;
+    }
+
+    // [Q4] Clear form and show message
+    // [Q7] Simulate "Saving to Backend" and showing success
+    console.log("Saving to backend:", feedback); 
+    setFeedback({ email: '', mobile: '', message: '' }); // Clear
+    setSubmitMsg("Thank You! Your feedback has been saved successfully."); // Success Message
+  };
+
+  // [Q8] Internal CSS Object
+  const specialOfferStyle = {
+    backgroundColor: '#ff4d4d',
+    color: 'white',
+    padding: '20px',
+    textAlign: 'center',
+    margin: '20px',
+    borderRadius: '10px',
+    border: '2px dashed white'
+  };
+
   return (
     <div className="App">
       {view === 'login' && <Login onLogin={handleLogin} />}
@@ -82,7 +123,6 @@ function App() {
             ))}
           </div>
 
-          {/* --- NEW BEAUTIFUL HERO SECTION --- */}
           <div className="hero-section">
             <div className="hero-overlay">
               <h1>Style Store</h1>
@@ -90,7 +130,12 @@ function App() {
               <button className="shop-now-btn" onClick={() => window.scrollTo({top: 600, behavior: 'smooth'})}>Shop Now</button>
             </div>
           </div>
-          {/* ---------------------------------- */}
+
+          {/* [Q8] Special Offers Section using Internal CSS */}
+          <div style={specialOfferStyle}>
+            <h2>🎉 New Year Special Offer! 🎉</h2>
+            <p>Get Flat 10% OFF on orders above ₹1000. Use Code: NEWYEAR2026</p>
+          </div>
 
           <div className="main-container">
             <h2>Results</h2>
@@ -105,6 +150,40 @@ function App() {
               ))}
             </div>
           </div>
+
+          {/* [Q5] Button to Hide/Show Section */}
+          <div style={{textAlign: 'center', margin: '30px'}}>
+             <button 
+                className="btn login-btn" 
+                onClick={() => setShowFeedback(!showFeedback)}
+                style={{width: '200px'}}
+             >
+                {showFeedback ? "Hide Feedback Form" : "Show Feedback Form"}
+             </button>
+          </div>
+
+          {/* [Q3] & [Q4] Feedback Form Section */}
+          {showFeedback && (
+              <div style={{ backgroundColor: '#fff', padding: '30px', margin: '20px auto', maxWidth: '500px', borderRadius: '8px' }}>
+                <h3>Contact Us / Feedback</h3>
+                <div className="input-group">
+                    <label>Email ID:</label>
+                    <input type="text" value={feedback.email} onChange={(e) => setFeedback({...feedback, email: e.target.value})} />
+                </div>
+                <div className="input-group">
+                    <label>Mobile Number:</label>
+                    <input type="text" value={feedback.mobile} onChange={(e) => setFeedback({...feedback, mobile: e.target.value})} />
+                </div>
+                <div className="input-group">
+                    <label>Message:</label>
+                    <input type="text" value={feedback.message} onChange={(e) => setFeedback({...feedback, message: e.target.value})} />
+                </div>
+                <button className="btn login-btn" onClick={handleFeedbackSubmit}>Submit Feedback</button>
+                
+                {/* [Q7] Display Success Message */}
+                {submitMsg && <p style={{color: 'green', marginTop: '10px', fontWeight: 'bold'}}>{submitMsg}</p>}
+              </div>
+          )}
         </>
       )}
 

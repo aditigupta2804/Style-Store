@@ -407,5 +407,17 @@ export const products = [
         rating: 4.3, reviews: "500", price: 299, mrp: 599, discount: 50, 
         image: "https://images.unsplash.com/photo-1506767571871-2495d43e117e?w=500", 
         bestSeller: false 
+    },  // <--- MAKE SURE THIS COMMA IS HERE
+    { 
+        id: 51, 
+        category: "Electronics", 
+        title: "Lab Special: Wireless Gaming Headset", 
+        rating: 4.9, 
+        reviews: "10", 
+        price: 1500, 
+        mrp: 2000, 
+        discount: 25, 
+        image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500", 
+        bestSeller: true 
     }
 ];

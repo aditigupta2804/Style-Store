@@ -6,9 +6,10 @@
   --accent-hover: #f3a847;
   --price-red: #CC0C39;
   --success-green: #007600;
-  --bg-gray: #e3e6e6;
+  --bg-gray: #e6f0ff; /* [Q2] Changed from #e3e6e6 to light blue to show CSS modification */
   --white: #ffffff;
 }
+/* ... rest of the CSS remains the same ... */
 
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Arial', sans-serif; }
 body { background-color: var(--bg-gray); overflow-x: hidden; color: black; }

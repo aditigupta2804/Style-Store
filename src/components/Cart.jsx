@@ -1,7 +1,12 @@
 import React from 'react';
 
 const Cart = ({ cartItems, onClose, onRemove, onBuy }) => {
-  const totalPrice = cartItems.reduce((sum, item) => sum + item.price, 0);
+  // [Q1] & [Q6] Calculate Total
+  const subtotal = cartItems.reduce((sum, item) => sum + item.price, 0);
+  
+  // [Q6] Discount Logic: If total > 1000, apply 10% off
+  const discountAmount = subtotal > 1000 ? subtotal * 0.10 : 0;
+  const finalTotal = subtotal - discountAmount;
 
   return (
     <div className="modal">
@@ -30,14 +35,21 @@ const Cart = ({ cartItems, onClose, onRemove, onBuy }) => {
               </div>
             ))}
             
-            <div style={{ textAlign: 'right', marginTop: '20px', fontSize: '18px' }}>
-              Subtotal: <strong>₹{totalPrice}</strong>
+            {/* [Q6] Display Cost and Discount */}
+            <div style={{ textAlign: 'right', marginTop: '20px', fontSize: '16px', borderTop: '2px solid #ddd', paddingTop:'10px' }}>
+              <div>Subtotal: ₹{subtotal}</div>
+              {discountAmount > 0 && (
+                <div style={{ color: 'green' }}>Discount (10%): - ₹{discountAmount.toFixed(2)}</div>
+              )}
+              <div style={{ fontSize: '20px', marginTop:'5px' }}>
+                  <strong>Final Total: ₹{finalTotal.toFixed(2)}</strong>
+              </div>
             </div>
             
             <button 
               className="btn buy-now-btn" 
               style={{ width: '100%', marginTop: '15px', padding: '12px' }}
-              onClick={() => onBuy(cartItems[0])} // For demo, we just proceed with the first item or handle bulk checkout differently
+              onClick={() => onBuy(cartItems[0])} 
             >
               Proceed to Buy
             </button>
